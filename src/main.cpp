@@ -247,6 +247,28 @@ void redGreenSlide()
   }
 }
 
+void coolKids()
+{
+  static unsigned long nextMove = 0;
+  static int moveIndex = 0;
+
+  if (millis() > nextMove)
+  {
+    nextMove = millis() + 50;
+
+    for (int i = 0; i < NUM_LEDS; i += 5)
+    {
+      leds[i] = CHSV(192, 255, 255);                  // purple
+      leds[(i + 1) % NUM_LEDS] = CHSV(160, 255, 255); // blue
+      leds[(i + 2) % NUM_LEDS] = CHSV(0, 255, 255);   // red
+      leds[(i + 3) % NUM_LEDS] = CHSV(25, 255, 255);  // orange
+      leds[(i + 4) % NUM_LEDS] = CHSV(108, 255, 255); // green
+    }
+
+    FastLED.show();
+  }
+}
+
 void handleAnimations()
 {
   static unsigned long lastAnimation = 0;
@@ -255,7 +277,7 @@ void handleAnimations()
   if (millis() - lastAnimation > 60000)
   {
     lastAnimation = millis();
-    animation = (animation + 1) % 5;
+    animation = (animation + 1) % 6;
   }
 
   switch (animation)
@@ -274,6 +296,9 @@ void handleAnimations()
     break;
   case 4:
     spaceySquares();
+    break;
+  case 5:
+    coolKids();
     break;
   }
 }
