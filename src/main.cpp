@@ -247,15 +247,23 @@ void redGreenSlide()
   }
 }
 
-void coolKids()
+// Loop pixels around the strip using the existing array
+void rotate()
+{
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
+    leds[i] = leds[(i + 1) % NUM_LEDS];
+  }
+  FastLED.show();
+}
+
+void coolKids(bool needsSetup)
 {
   static unsigned long nextMove = 0;
   static int moveIndex = 0;
 
-  if (millis() > nextMove)
+  if (needsSetup)
   {
-    nextMove = millis() + 50;
-
     for (int i = 0; i < NUM_LEDS; i += 5)
     {
       leds[i] = CHSV(192, 255, 255);                  // purple
@@ -264,26 +272,37 @@ void coolKids()
       leds[(i + 3) % NUM_LEDS] = CHSV(25, 255, 255);  // orange
       leds[(i + 4) % NUM_LEDS] = CHSV(108, 255, 255); // green
     }
-
-    FastLED.show();
   }
+
+  if (millis() > nextMove)
+  {
+    nextMove = millis() + 200;
+    rotate();
+  }
+  FastLED.show();
 }
 
 void handleAnimations()
 {
-  static unsigned long lastAnimation = 0;
-  static int animation = 0;
+  static unsigned long lastAnimationTime = 0;
+  static int animation = 5;
+  static bool needsSetup = true;
 
-  if (millis() - lastAnimation > 60000)
+  if (lastAnimationTime == 0 || millis() - lastAnimationTime > 60000)
   {
-    lastAnimation = millis();
+    lastAnimationTime = millis();
     animation = (animation + 1) % 6;
+    needsSetup = true;
+  }
+  else
+  {
+    needsSetup = false;
   }
 
   switch (animation)
   {
   case 0:
-    redGreenSlide();
+    coolKids(needsSetup);
     break;
   case 1:
     rainbow();
@@ -298,7 +317,7 @@ void handleAnimations()
     spaceySquares();
     break;
   case 5:
-    coolKids();
+    redGreenSlide();
     break;
   }
 }
@@ -307,5 +326,4 @@ void loop()
 {
   ArduinoOTA.handle();
   handleAnimations();
-  // rainbow();
 }
