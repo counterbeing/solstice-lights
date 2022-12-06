@@ -248,19 +248,31 @@ void redGreenSlide()
 }
 
 // Loop pixels around the strip using the existing array
-void rotate()
+void rotate(bool direction = true)
 {
-  for (int i = 0; i < NUM_LEDS; i++)
+  if (direction)
   {
-    leds[i] = leds[(i + 1) % NUM_LEDS];
+    for (int i = 0; i < NUM_LEDS; i++)
+    {
+      leds[i] = leds[(i + 1) % NUM_LEDS];
+    }
   }
-  FastLED.show();
+  else
+  {
+    for (int i = NUM_LEDS - 1; i >= 0; i--)
+    {
+      leds[i] = leds[(i - 1) % NUM_LEDS];
+    }
+  }
 }
 
 void coolKids(bool needsSetup)
 {
   static unsigned long nextMove = 0;
   static int moveIndex = 0;
+  static int velocity = 0;
+  static bool direction = true;
+  static int maxVelocity = 20;
 
   if (needsSetup)
   {
@@ -276,8 +288,25 @@ void coolKids(bool needsSetup)
 
   if (millis() > nextMove)
   {
-    nextMove = millis() + 200;
-    rotate();
+    if (direction)
+    {
+      velocity++;
+      if (velocity >= maxVelocity)
+      {
+        direction = false;
+      }
+    }
+    else
+    {
+      velocity--;
+      if (abs(velocity) >= maxVelocity)
+      {
+        direction = true;
+      }
+    }
+
+    nextMove = millis() + 30 * abs(velocity);
+    rotate(direction);
   }
   FastLED.show();
 }
