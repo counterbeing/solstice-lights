@@ -311,6 +311,54 @@ void coolKids(bool needsSetup)
   FastLED.show();
 }
 
+// get brightest color from a single LED
+int getBrightest(CRGB led)
+{
+  int brightest = led.r;
+  if (led.g > brightest)
+  {
+    brightest = led.g;
+  }
+  if (led.b > brightest)
+  {
+    brightest = led.b;
+  }
+  return brightest;
+}
+
+void drops()
+{
+  static unsigned long nextDrop = 0;
+  static unsigned long nextFade = 0;
+  static int dropRegister[NUM_LEDS];
+
+  if (millis() > nextFade)
+  {
+    nextFade = millis() + 10;
+    for (int i = 0; i < NUM_LEDS; i++)
+    {
+      int amount = getBrightest(leds[i]);
+      if (amount > 230)
+      {
+        int index = (i - 1) % NUM_LEDS;
+        if (index > 0)
+        {
+          leds[index] = leds[i];
+        }
+      }
+
+      leds[i].fadeToBlackBy(1);
+    }
+  }
+
+  if (millis() > nextDrop)
+  {
+    nextDrop = millis() + 100;
+    leds[random(0, NUM_LEDS)] = CHSV(random8(), 255, 255);
+  }
+  FastLED.show();
+}
+
 void handleAnimations()
 {
   static unsigned long lastAnimationTime = 0;
@@ -354,5 +402,6 @@ void handleAnimations()
 void loop()
 {
   ArduinoOTA.handle();
-  handleAnimations();
+  // handleAnimations();
+  drops();
 }
