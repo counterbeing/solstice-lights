@@ -145,29 +145,6 @@ void fadeAllColors()
   }
 }
 
-void spaceySquares()
-{
-  static unsigned long nextSpacey = 0;
-  static int spacey = 0;
-
-  for (int i = 0; i < NUM_LEDS; i++)
-  {
-    leds[i].fadeToBlackBy(1);
-  }
-  FastLED.show();
-
-  if (millis() > nextSpacey)
-  {
-    nextSpacey = millis() + 1000;
-
-    int numPixels = random(0, NUM_LEDS);
-    int offset = random(0, NUM_LEDS);
-    fill_solid(leds + offset, numPixels, CRGB::Gold);
-
-    FastLED.show();
-  }
-}
-
 // marching ants
 void ants()
 {
@@ -337,15 +314,31 @@ void drops()
     nextFade = millis() + 10;
     for (int i = 0; i < NUM_LEDS; i++)
     {
-      int amount = getBrightest(leds[i]);
-      if (amount > 230)
+      if (dropRegister[i] > 5)
       {
-        int index = (i - 1) % NUM_LEDS;
-        if (index > 0)
+        dropRegister[i] = 0;
+      }
+      if (dropRegister[i] > 0)
+      {
+        int spread = dropRegister[i]++;
+        int start = abs((i - spread) % NUM_LEDS);
+        int end = (i + spread) % NUM_LEDS;
+        for (int j = start; j < end; j++)
         {
-          leds[index] = leds[i];
+          leds[j] = leds[i];
+          leds[j].fadeToBlackBy(abs(j - i) * 15);
         }
       }
+
+      // int amount = getBrightest(leds[i]);
+      // if (amount > 230)
+      // {
+      //   int index = (i - 1) % NUM_LEDS;
+      //   if (index > 0)
+      //   {
+      //     leds[index] = leds[i];
+      //   }
+      // }
 
       leds[i].fadeToBlackBy(1);
     }
@@ -354,7 +347,25 @@ void drops()
   if (millis() > nextDrop)
   {
     nextDrop = millis() + 100;
-    leds[random(0, NUM_LEDS)] = CHSV(random8(), 255, 255);
+    int randomIndex = random(0, NUM_LEDS);
+
+    int randomColor = random(0, 3);
+    switch (randomColor)
+    {
+    case 0:
+      leds[randomIndex] = CRGB::Aqua;
+      break;
+    case 1:
+      leds[randomIndex] = CRGB(20, 255, 255);
+      break;
+    case 2:
+      leds[randomIndex] = CRGB(100, 255, 255);
+      break;
+    }
+
+    // leds[randomIndex] = randomColor;
+
+    dropRegister[randomIndex] = 1;
   }
   FastLED.show();
 }
@@ -391,7 +402,7 @@ void handleAnimations()
     fadeAllColors();
     break;
   case 4:
-    spaceySquares();
+    drops();
     break;
   case 5:
     redGreenSlide();
@@ -402,6 +413,5 @@ void handleAnimations()
 void loop()
 {
   ArduinoOTA.handle();
-  // handleAnimations();
-  drops();
+  handleAnimations();
 }
