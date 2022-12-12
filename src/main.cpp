@@ -258,7 +258,7 @@ void coolKids(bool needsSetup)
       leds[i] = CHSV(192, 255, 255);                  // purple
       leds[(i + 1) % NUM_LEDS] = CHSV(160, 255, 255); // blue
       leds[(i + 2) % NUM_LEDS] = CHSV(0, 255, 255);   // red
-      leds[(i + 3) % NUM_LEDS] = CHSV(25, 255, 255);  // orange
+      leds[(i + 3) % NUM_LEDS] = CHSV(15, 255, 255);  // orange
       leds[(i + 4) % NUM_LEDS] = CHSV(108, 255, 255); // green
     }
   }
